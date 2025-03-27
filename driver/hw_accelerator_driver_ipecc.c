@@ -1929,6 +1929,33 @@ err:
 	return -1;
 }
 
+/* Activate the shuffling */
+static inline int ip_ecc_activate_shuffling(void)
+{
+	/* Wait until the IP is not busy */
+	IPECC_BUSY_WAIT();
+
+	/* We activate the shuffling only if it is supported */
+	if(IPECC_IS_SHUFFLING_SUPPORTED()){
+		IPECC_ENABLE_SHUFFLE();
+
+		/* Wait until the IP is not busy */
+		IPECC_BUSY_WAIT();
+
+		/* Check for error */
+		if(ip_ecc_check_error(NULL)){
+			goto err;
+		}
+	}
+	else{
+		goto err;
+	}
+
+	return 0;
+err:
+	return -1;
+}
+
 /* Set the NN size provided in bits */
 static inline int ip_ecc_set_nn_bit_size(uint32_t bit_sz)
 {
@@ -1983,7 +2010,7 @@ static inline uint32_t ip_ecc_get_nn_bit_size(void)
  * A value of 0 for input argument 'blinding_size' means disabling
  * the blinding countermeasure.
  */
-static inline int ip_ecc_enable_blinding_size(uint32_t blinding_size)
+static inline int ip_ecc_enable_blinding_and_set_size(uint32_t blinding_size)
 {
 	/* Wait until the IP is not busy */
 	IPECC_BUSY_WAIT();
@@ -2086,16 +2113,14 @@ err:
 }
 
 /* Set the period of the Z-remask countermeasure for scalar multiplication.
- *
- * A value of 0 for input argument 'period' means disabling the countermeasure.
  */
-static inline int ip_ecc_enable_zremask(uint32_t period)
+static inline int ip_ecc_enable_zremask_and_set_period(uint32_t period)
 {
 	/* Wait until the IP is not busy */
 	IPECC_BUSY_WAIT();
 
 	if(period == 0){
-		log_print("ip_ecc_enable_zremask(): error, a period of 0 is not supported - "
+		log_print("ip_ecc_enable_zremask_and_set_period(): error, a period of 0 is not supported - "
 				"use ip_ecc_disable_zremask() instead to disable the countermeare\n\r");
 	}
 	else{
@@ -3792,13 +3817,13 @@ err:
  * countermeasure (consider using instead  explicit function
  * hw_driver_disable_blinding()).
  */
-int hw_driver_enable_blinding(uint32_t blinding_size)
+int hw_driver_enable_blinding_and_set_size(uint32_t blinding_size)
 {
 	if(driver_setup()){
 		goto err;
 	}
 
-	if(ip_ecc_enable_blinding_size(blinding_size)){
+	if(ip_ecc_enable_blinding_and_set_size(blinding_size)){
 		goto err;
 	}
 
@@ -3858,13 +3883,13 @@ err:
 
 /* Activate and configure the periodic Z-remasking countermeasure
  * (the 'period' arguement is expressed in number of bits of the scalar */
-int hw_driver_enable_zremask(uint32_t period)
+int hw_driver_enable_zremask_and_set_period(uint32_t period)
 {
 	if(driver_setup()){
 		goto err;
 	}
 
-	if(ip_ecc_enable_zremask(period)){
+	if(ip_ecc_enable_zremask_and_set_period(period)){
 		goto err;
 	}
 

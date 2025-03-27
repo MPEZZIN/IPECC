@@ -76,7 +76,7 @@ int ip_set_pt_and_run_kp(ipecc_test_t* t)
 	 * Configure blinding
 	 */
 	if (t->blinding) {
-		hw_driver_set_blinding(t->blinding);
+		hw_driver_enable_blinding_and_set_size(t->blinding);
 	} else {
 		hw_driver_disable_blinding();
 	}

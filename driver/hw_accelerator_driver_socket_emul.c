@@ -202,7 +202,7 @@ err:
 }
 
 /* Activate the blinding for scalar multiplication */
-int hw_driver_set_blinding(unsigned int blinding_size)
+int hw_driver_enable_blinding_and_set_size(unsigned int blinding_size)
 {
 	unsigned char cmd[1] = { (unsigned char)SET_BLINDING };
 	unsigned char bl_sz[4];

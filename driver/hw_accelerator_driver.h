@@ -66,7 +66,7 @@ int hw_driver_set_curve(const uint8_t *a, uint32_t a_sz, const uint8_t *b, uint3
 			const uint8_t *p, uint32_t p_sz, const uint8_t *q, uint32_t q_sz);
 
 /* Activate the blinding for scalar multiplication */
-int hw_driver_enable_blinding(uint32_t blinding_size);
+int hw_driver_enable_blinding_and_set_size(uint32_t blinding_size);
 
 /* Disable the blinding for scalar multiplication */
 int hw_driver_disable_blinding(void);
@@ -79,7 +79,7 @@ int hw_driver_disable_shuffling(void);
 
 /* Activate and configure the periodic Z-remasking countermeasure
  * (the 'period' argument is expressed in number of bits of the scalar */
-int hw_driver_enable_zremask(uint32_t period);
+int hw_driver_enable_zremask_and_set_period(uint32_t period);
 
 /* Disable the periodic Z-remasking countermeasure for scalar multiplication */
 int hw_driver_disable_zremask(void);

@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 		printf("\n\r");
 		/* Set the blinding if necessary */
 		if(t.blinding){
-			ret = hw_driver_set_blinding(t.blinding); EG(ret, "blinding");
+			ret = hw_driver_enable_blinding_and_set_size(t.blinding); EG(ret, "blinding");
 		}
 		szx = sizeof(Poutx);
 		szy = sizeof(Pouty);
