@@ -330,6 +330,9 @@ architecture struct of ecc is
 			nndyn_nnp1 : in unsigned(log2(nn + 1) - 1 downto 0);
 			nndyn_nnm3 : in unsigned(log2(nn) - 1 downto 0);
 			nndyn_nnm2 : in unsigned(log2(nn) - 1 downto 0);
+      -- pragma translate_off
+      nndyn_w : in unsigned(log2(w) - 1 downto 0);
+      -- pragma translate_on
 			--   [k]P computation
 			agokp : in  std_logic;
 			kpdone : out std_logic;
@@ -984,7 +987,7 @@ architecture struct of ecc is
 	signal fpwe : std_logic;
 	signal fpwaddr : std_logic_vector(FP_ADDR - 1 downto 0);
 	signal fpwdata : std_logic_vector(ww - 1 downto 0);
-	-- signals between ecc_scalar & ecc_fp (also driven to ecc_curve)
+	-- signals between ecc_scalar & ecc_fp
 	signal compkp : std_logic;
 	signal compcstmty : std_logic;
 	signal comppop : std_logic;
@@ -1339,6 +1342,9 @@ begin
 			nndyn_nnp1 => nndyn_nnp1,
 			nndyn_nnm3 => nndyn_nnm3,
 			nndyn_nnm2 => nndyn_nnm2,
+		  -- pragma translate_off
+		  nndyn_w => nndyn_w,
+		  -- pragma translate_on
 			--   [k]P computation
 			agokp => agokp,
 			kpdone => kpdone,
@@ -1399,9 +1405,9 @@ begin
 			kb0end => kb0end,
 			ptadd => ptadd,
 			-- interface with ecc_fp
-			compkp => compkp, -- also driven to ecc_curve
+			compkp => compkp,
 			compcstmty => compcstmty,
-			comppop => comppop, -- also driven to ecc_curve
+			comppop => comppop,
 			token_generating => token_generating,
 			-- interface with ecc_fp_dram_sh (used only when shuffle_type /= none)
 			permute => permute,
@@ -1881,9 +1887,9 @@ begin
 		echo(integer'image(sramlat));
 		echo(", async = ");
 		if async then
-			echo("TRUE");
+			echol("TRUE");
 		else
-			echo("FALSE");
+			echol("FALSE");
 		end if;
 		echo("[        ecc.vhd ]: Config: sram lat = ");
 		echo(integer'image(sramlat));
@@ -1925,21 +1931,25 @@ begin
 		echo(integer'image(ge_pow_of_2(nblargenb)));
 		echol(" large-numbers");
 		-- 3rd console log line (TRNG fifos)
-		 echo("[        ecc.vhd ]: Config: TRNG fifo sizes: raw=");
+		echo("[        ecc.vhd ]: Config: TRNG fifo sizes: raw=");
 		echo(integer'image(raw_ram_size));
-		echo("-bit, irn axi=");
+		echol("-bit");
+    echo("[        ecc.vhd ]: Config                   irn axi=");
 		echo(integer'image(irn_fifo_size_axi));
 		echo(" words of ");
 		echo(integer'image(ww));
-		echo("-bit, irn fp=");
+		echol("-bit");
+    echo("[        ecc.vhd ]: Config                   irn fp=");
 		echo(integer'image(irn_fifo_size_efp));
 		echo(" words of ");
 		echo(integer'image(ww));
-		echo("-bit, irn curve=");
+		echol("-bit");
+    echo("[        ecc.vhd ]: Config                   irn curve=");
 		echo(integer'image(irn_fifo_size_crv));
 		echo(" words of ");
 		echo(integer'image(2));
-		echo("-bit, irn sh=");
+		echol("-bit");
+    echo("[        ecc.vhd ]: Config                   irn sh=");
 		echo(integer'image(irn_fifo_size_shf));
 		echo(" words of ");
 		echo(integer'image((irn_width_sh)));

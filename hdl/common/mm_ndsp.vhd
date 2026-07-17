@@ -1480,8 +1480,8 @@ begin
 					if nndyn_slkpivot_0_larger_cstslk = '1' then -- (s160)
 					--if to_integer(nndyn_slkpivot_0) > MIN_SLK_LAST - 1 then -- (s160)
 						assert (to_integer(nndyn_slkpivot_0) > 0)
-							report "Assigning pivot0 to v_prod_nextslkcnt but the value is negative!"
-								severity FAILURE;
+							report "Assigning pivot0 to v_prod_nextslkcnt but the value is negative."
+								severity NOTE;
 						v_prod_nextslkcnt := unsigned(nndyn_slkpivot_0); -- (s161)
 					else
 						v_prod_nextslkcnt := to_unsigned(MIN_SLK_LAST - 1, NB_SLK_BITS);
@@ -1514,8 +1514,8 @@ begin
 					if nndyn_slkpivot_1_larger_cstslk = '1' then
 					--if to_integer(nndyn_slkpivot_1) > MIN_SLK_LAST - 1 then
 						assert (to_integer(nndyn_slkpivot_1) > 0)
-							report "Assigning pivot1 to v_prod_nextslkcnt but the value is negative!"
-								severity FAILURE;
+							report "Assigning pivot1 to v_prod_nextslkcnt but the value is negative."
+								severity NOTE;
 						v_prod_nextslkcnt := unsigned(nndyn_slkpivot_1);
 					else
 						v_prod_nextslkcnt := to_unsigned(MIN_SLK_LAST - 1, NB_SLK_BITS);

@@ -50,6 +50,9 @@ entity ecc_scalar is
 		nndyn_nnp1 : in unsigned(log2(nn + 1) - 1 downto 0);
 		nndyn_nnm3 : in unsigned(log2(nn) - 1 downto 0);
 		nndyn_nnm2 : in unsigned(log2(nn) - 1 downto 0);
+		-- pragma translate_off
+		nndyn_w : in unsigned(log2(w) - 1 downto 0);
+		-- pragma translate_on
 		--   [k]P computation
 		agokp : in std_logic;
 		kpdone : out std_logic;
@@ -2298,22 +2301,24 @@ begin
 					echo("Returning to substate 'idle' (");
 					echo(time'image(now));
 					echol(")");
-					echo("[ ecc_scalar.vhd ]: PERF: ");
-					echo(integer'image(r.sim.perfcnt));
-					echo(" clock cycles (");
-					echo(time'image(now));
-					echol(")");
+					echo("[ ecc_scalar.vhd ]: PERF: " & integer'image(to_integer(nndyn_nnp1) - 1) & "|"
+                & integer'image(to_integer(nndyn_w)) & "|");
+					echol(integer'image(r.sim.perfcnt));
+					--echo(" clock cycles (");
+					--echo(time'image(now));
+					--echol(")");
 				end if;
 			elsif (rbak_substate = token and r.kp.substate = idle) then
 				echo("[ ecc_scalar.vhd ]: ");
 				echo("Returning to substate 'idle' (");
 				echo(time'image(now));
 				echol(")");
-				echo("[ ecc_scalar.vhd ]: PERF: ");
-				echo(integer'image(r.sim.perfcnt));
-				echo(" clock cycles (");
-				echo(time'image(now));
-				echol(")");
+				echo("[ ecc_scalar.vhd ]: PERF: " & integer'image(to_integer(nndyn_nnp1) - 1) & "|"
+              & integer'image(to_integer(nndyn_w)) & "|");
+				echol(integer'image(r.sim.perfcnt));
+        --echo(" clock cycles (");
+				--echo(time'image(now));
+				--echol(")");
 			elsif (r.kp.substate = checkoncurve and rbak_substate /= checkoncurve)
 			then
 				echo("[ ecc_scalar.vhd ]: ");

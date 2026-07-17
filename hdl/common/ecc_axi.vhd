@@ -156,6 +156,7 @@ entity ecc_axi is
 		nndyn_mask_wm2 : out std_logic;
 		nndyn_nnp1 : out unsigned(log2(nn + 1) - 1 downto 0);
 		nndyn_nnm3 : out unsigned(log2(nn) - 1 downto 0);
+		nndyn_nnm2 : out unsigned(log2(nn) - 1 downto 0);
 		nndyn_w_less_eq_ndsp : out std_logic;
 		nndyn_w_less_ndsp : out std_logic;
 		nndyn_w_multiple_of_ndsp : out std_logic;
@@ -166,7 +167,6 @@ entity ecc_axi is
 		nndyn_slkpivot_0_larger_cstslk : out std_logic;
 		nndyn_slkpivot_1 : out signed(NB_SLK_BITS - 1 downto 0);
 		nndyn_slkpivot_1_larger_cstslk : out std_logic;
-		nndyn_nnm2 : out unsigned(log2(nn) - 1 downto 0);
 		-- busy signal for [k]P computation
 		kppending : out std_logic;
 		-- software reset (to other components of the IP)
@@ -997,22 +997,27 @@ begin
 		-- TODO: multicycle constraints are possible on the following paths (which
 		-- all go through combinational signal v_kp_possible):
 		--   r.ctrl.doblinding -> r.ctrl.agokp/r.ctrl.lockaxi/r.ctrl.ierrid
-		--   r.ctrl.[kq]_set -> r.ctrl.agokp/r.ctrl.lockaxi/r.ctrl.ierrid
-		-- --  r.nndyn.valwerr -> r.ctrl.agokp/r.ctrl.lockaxi/r.ctrl.ierrid
+		--     r.ctrl.[kq]_set -> r.ctrl.agokp/r.ctrl.lockaxi/r.ctrl.ierrid
 		--
 		-- Note: (dynamic-value-of-)w = 1 is now an admissible setting, that's
 		--       why .valwerr = '0' has been removed from the computation of
 		--       'v_kp_possible' below.
-		v_kp_possible := v_pop_possible and r.ctrl.k_set = '1' and -- (s114)
-			-- signals related to nn_dynamic feature
-			-- ((not nn_dynamic) or (nn_dynamic and r.nndyn.valwerr = '0'))
-			-- signals related to blinding (order 'q' must be set by softare
-			-- for blinding to make sense)
-			(  ((hwsecure) and blinding > 0 and r.ctrl.q_set = '1')
-			 or (r.ctrl.doblinding = '0' or (r.ctrl.doblinding and r.ctrl.q_set)='1'))
+		v_kp_possible :=
+           v_pop_possible
+      and (r.ctrl.k_set = '1') -- (s114)
+			-- signals related to blinding (q must be set by SW for blinding
+			-- to make sense)
+			and (
+               (hwsecure and (blinding > 0) and r.ctrl.q_set = '1')
+			      or (     r.ctrl.doblinding = '0'
+                 or (r.ctrl.doblinding = '1' and r.ctrl.q_set ='1'))
+          )
 			-- signals related to token feature
-			and ( ((not hwsecure) and (r.ctrl.token_act = '0' or r.ctrl.tokwasread = '1' ))
-			     or ((hwsecure) and r.ctrl.tokwasread = '1') );
+			and (
+               ((not hwsecure) and (   r.ctrl.token_act = '0'
+                                    or r.ctrl.tokwasread = '1') )
+			      or (     hwsecure  and r.ctrl.tokwasread = '1')
+          );
 
 		-- (s30) v_busy determines the value of the BUSY bit in R_STATUS register,
 		--       see (s160)
@@ -1040,7 +1045,8 @@ begin
 		-- of r.write.active allows software to poll R_STATUS register inbetween
 		-- the different single 32 (or 64) bit data transfers involved in one
 		-- large number read or write.
-		v_busy := (initdone = '0') or r.ctrl.kppending = '1'
+		v_busy := (initdone = '0')
+             or r.ctrl.kppending = '1'
 		         or r.ctrl.mtypending = '1' or r.ctrl.agocstmty = '1'
 		         or r.ctrl.amtypending = '1' or r.ctrl.agomtya = '1'
 		         or r.ctrl.poppending = '1'
@@ -1731,7 +1737,7 @@ begin
 							-- to read the random token (bit CTRL_RD_TOKEN is set in W_CTRL)
 							v_read_no_error := TRUE;
 							if r.axi.wdatax(CTRL_RD_TOKEN) = '1' then
-								-- In HW unsecure/Side-Channel analysis mode the operation is subject
+								-- In HW unsecure/SCA analysis mode, the operation is subject
 								-- to the token feature being activated through the W_DBG_CFG_TOKEN
 								-- register (see (s224)), while in HW secure mode, the feature is
 								-- always active and cannot be disengaged. In both cases, the token
@@ -2159,8 +2165,8 @@ begin
 				v.axi.bvalid := '1';
 				v.ctrl.ierrid := r.ctrl.ierrid and
 					not (r.axi.wdatax(STATUS_ERR_I_MSB downto STATUS_ERR_I_LSB));
-				-- .aerr_inpt_ack & .aerr_outpt_ack, if asserted, stay asserted only
-				-- 1 cycle
+				-- .aerr_inpt_ack & .aerr_outpt_ack, if asserted, stay asserted
+				-- only 1 cycle
 				v.ctrl.aerr_inpt_ack := r.axi.wdatax(STATUS_ERR_IN_PT_NOT_ON_CURVE);
 				v.ctrl.aerr_outpt_ack := r.axi.wdatax(STATUS_ERR_OUT_PT_NOT_ON_CURVE);
 			-- ------------------------------------------------
